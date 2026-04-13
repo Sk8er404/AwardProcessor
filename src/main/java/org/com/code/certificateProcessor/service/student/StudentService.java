@@ -9,9 +9,9 @@ import org.com.code.certificateProcessor.pojo.dto.request.StudentRequest;
 import org.com.code.certificateProcessor.pojo.dto.response.CursorPageResponse;
 
 public interface StudentService {
-    CreateStudentResponse addStudent (StudentRequest studentRequest);
+    Student addStudent (Student student);
+    Student getStudentById(String studentId);
     StudentSignInResponse studentSignIn(String username, String password);
-    StudentInfoResponse getStudentById(String studentId);
     CursorPageResponse<StudentInfoResponse> cursorQueryStudent(CursorPageRequest cursorPageRequest);
-    void updateStudentInfo(StudentRequest studentRequest);
+    void updateStudentInfo(Student student);
 }

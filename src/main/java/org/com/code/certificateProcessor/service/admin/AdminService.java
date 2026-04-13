@@ -7,13 +7,16 @@ import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.AdminIn
 import org.com.code.certificateProcessor.pojo.dto.request.adminRequest.AdminRequest;
 import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.AdminSignInResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.CreateAdminResponse;
+import org.com.code.certificateProcessor.pojo.entity.Admin;
 
 public interface AdminService {
-    CreateAdminResponse addAdmin(AdminRequest adminRequest);
-    AdminSignInResponse adminSignIn(String username, String password);
-    AdminInfoResponse getAdminByUserName(String username);
-    void updateAdminInfo(AdminRequest adminRequest);
+    Admin addAdmin(Admin admin);
+    Admin getAdminByUserName(String username);
+    void updateAdminInfo(Admin admin);
+
     CursorPageResponse<AdminInfoResponse> cursorQueryAdmin(CursorPageRequest cursorPageRequest);
 
-    void updateAdminAuth(UpdateAdminAuthRequest updateAdminAuthRequest);
+    void updateAdminAuth(String username,String auth);
+
+    AdminSignInResponse adminSignIn(String username, String password);
 }

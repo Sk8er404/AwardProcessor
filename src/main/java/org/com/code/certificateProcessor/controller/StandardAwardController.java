@@ -10,6 +10,8 @@ import org.com.code.certificateProcessor.pojo.dto.request.standardAwardRequest.D
 import org.com.code.certificateProcessor.pojo.dto.request.standardAwardRequest.StandardAwardRequest;
 import org.com.code.certificateProcessor.pojo.dto.response.standardAwardResponse.AdminStandardAwardInfoResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.standardAwardResponse.BaseStandardAwardInfoResponse;
+import org.com.code.certificateProcessor.pojo.entity.StandardAward;
+import org.com.code.certificateProcessor.pojo.structMap.StandardAwardStructMap;
 import org.com.code.certificateProcessor.pojo.validation.group.CreateGroup;
 import org.com.code.certificateProcessor.pojo.validation.group.DeleteGroup;
 import org.com.code.certificateProcessor.pojo.validation.group.GetGroup;
@@ -23,12 +25,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/standardAward")
 @Validated
 public class StandardAwardController {
     @Autowired
     private StandardAwardService standardAwardService;
+    @Autowired
+    StandardAwardStructMap standardAwardStructMap;
+
 
     @GetMapping("/getById")
     public ResponseEntity<Object> getById(
@@ -37,8 +44,9 @@ public class StandardAwardController {
             @NotEmpty
             String standardAwardId) {
 
-        AdminStandardAwardInfoResponse standardAwardInfoResponse
-                = standardAwardService.getStandardAwardById(standardAwardId);
+
+        StandardAward standardAward = standardAwardService.getStandardAwardById(standardAwardId);
+        AdminStandardAwardInfoResponse standardAwardInfoResponse = standardAwardStructMap.toAdminStandardAwardInfoResponse(standardAward);
         return ResponseEntity.ok(standardAwardInfoResponse);
     }
 
@@ -87,7 +95,8 @@ public class StandardAwardController {
             @NotNull
             CreateAndUpdateStandardAwardListRequest createStandardAwardListRequest) {
 
-        standardAwardService.addBatchStandardAward(createStandardAwardListRequest.getRequestList());
+        List<StandardAward> standardAwardList = standardAwardStructMap.toStandardAwardList(createStandardAwardListRequest.getRequestList());
+        standardAwardService.addBatchStandardAward(standardAwardList);
 
         return ResponseEntity.ok("创建成功");
     }
@@ -99,7 +108,8 @@ public class StandardAwardController {
             @Validated(UpdateGroup.class)
             @NotNull
             CreateAndUpdateStandardAwardListRequest updateStandardAwardListRequest) {
-        standardAwardService.updateBatchStandardAward(updateStandardAwardListRequest.getRequestList());
+        List<StandardAward> standardAwardList = standardAwardStructMap.toStandardAwardList(updateStandardAwardListRequest.getRequestList());
+        standardAwardService.updateBatchStandardAward(standardAwardList);
         return ResponseEntity.ok("更新成功");
     }
 

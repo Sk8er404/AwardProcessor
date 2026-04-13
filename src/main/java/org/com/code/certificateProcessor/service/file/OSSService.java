@@ -27,16 +27,22 @@ public class OSSService {
                       @Value("${aliyun.oss.accessKeyId}")String ACCESS_KEY_ID,
                       @Value("${aliyun.oss.accessKeySecret}")String ACCESS_KEY_SECRET,
                       @Value("${aliyun.oss.bucketName}")String BUCKET_NAME) {
-        this.BUCKET_NAME = BUCKET_NAME;
-        this.ENDPOINT = ENDPOINT;
+       try {
+           this.BUCKET_NAME = BUCKET_NAME;
+           this.ENDPOINT = ENDPOINT;
 
 
-        OSSClient ossClient = new OSSClient(ENDPOINT, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+           OSSClient ossClient = new OSSClient(ENDPOINT, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
 
-        if(!ossClient.doesBucketExist(BUCKET_NAME)){
-            throw new OSSException("存储桶不存在");
-        }
-        this.ossClient=ossClient;
+           if(!ossClient.doesBucketExist(BUCKET_NAME)){
+               throw new OSSException("存储桶不存在");
+           }
+           this.ossClient=ossClient;
+       }catch (OSSException e){
+           throw e;
+       }catch (Exception e){
+           throw new OSSException("存储桶不存在",e);
+       }
     }
 
     // 获取OSS文件路径

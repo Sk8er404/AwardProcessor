@@ -132,7 +132,7 @@ public class FileManageService {
         try {
             List<PartETagDTO> completedPartETags = (List<PartETagDTO>) uploadInfo.get(FileUploadMapKey.completedPartETags);
             if (completedPartETags == null || completedPartETags.isEmpty()) {
-                throw new OSSException("上传失败，请重新上传");
+                throw new OSSException("结束分段失败");
             }
             completedPartETags.sort(Comparator.comparingInt(PartETagDTO::getPartNumber));
             List<PartETag> partETags = completedPartETags.stream().map(PartETagDTO::toPartETag).collect(Collectors.toList());
@@ -194,7 +194,10 @@ public class FileManageService {
                 }
             });
             return uploadInfo;
-        } catch (Exception e) {
+        } catch (OSSException e){
+            throw e;
+        }
+        catch (Exception e) {
             throw new OSSException("结束分段失败",e);
         }
     }

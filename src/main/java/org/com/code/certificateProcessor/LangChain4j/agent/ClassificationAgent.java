@@ -59,7 +59,7 @@ public interface ClassificationAgent {
 
 
     /**
-     * 奖项查重 Agent (已更新日期处理逻辑)
+     * 奖项查重 Agent
      */
     @SystemMessage({
             "你是一个严格的教务系统查重助手。",

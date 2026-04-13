@@ -164,7 +164,7 @@ public class ElasticUtil {
         return rankedAwardIds;
     }
 
-    public SearchResponse<Map> performTextSearch(String keyword,String indexName, List<String> textSearchFields) throws IOException {
+    public SearchResponse<Map> performTextSearch(String keyword,String indexName, List<String> textSearchFields){
         try {
             // 2. 执行关键字搜索 (Text Search)
             Query textQuery = Query.of(q -> q

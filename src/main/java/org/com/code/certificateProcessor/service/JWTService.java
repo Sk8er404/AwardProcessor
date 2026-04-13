@@ -62,10 +62,17 @@ public class JWTService {
     }
 
     public String checkToken(String authToken) {
-        if(authToken==null||authToken.trim().isEmpty())
-            throw new ResourceNotFoundException("未携带token");
+        try {
+            if(authToken==null||authToken.trim().isEmpty())
+                throw new ResourceNotFoundException("未携带token");
 
-        return (String) objectRedisTemplate.opsForValue().get(String.format(KeyToken_UserAuth, authToken));
+            return (String) objectRedisTemplate.opsForValue().get(String.format(KeyToken_UserAuth, authToken));
+        }catch (ResourceNotFoundException e){
+            throw e;
+        }
+        catch (Exception e){
+            throw new ResourceNotFoundException("检查token失败",e);
+        }
     }
 
     public void deleteToken(String token) {

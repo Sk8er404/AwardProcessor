@@ -2,7 +2,7 @@ package org.com.code.certificateProcessor.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
+import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.AdminInfoResponse;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.com.code.certificateProcessor.mapper.StudentMapper;
@@ -12,7 +12,9 @@ import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.AdminIn
 import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.AdminSignInResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.CreateAdminResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.awardSubmissionResponse.AdminAwardSubmissionResponse;
+import org.com.code.certificateProcessor.pojo.entity.Admin;
 import org.com.code.certificateProcessor.pojo.entity.AwardSubmission;
+import org.com.code.certificateProcessor.pojo.structMap.AdminStructMap;
 import org.com.code.certificateProcessor.pojo.validation.group.CreateGroup;
 import org.com.code.certificateProcessor.pojo.validation.group.SignInGroup;
 import org.com.code.certificateProcessor.pojo.validation.group.UpdateGroup;
@@ -41,11 +43,13 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
     @Autowired
-    AwardSubmissionService awardSubmissionService;
+    private AwardSubmissionService awardSubmissionService;
     @Autowired
     private StudentService studentService;
     @Autowired
-    StudentMapper studentMapper;
+    private StudentMapper studentMapper;
+    @Autowired
+    AdminStructMap adminStructMap;
 
 
     @PostMapping("/signUp")
@@ -55,9 +59,8 @@ public class AdminController {
             @Validated(CreateGroup.class)
             @NotNull
             AdminRequest adminRequest) {
-        CreateAdminResponse createAdminResponse = adminService.addAdmin(adminRequest);
-
-        return ResponseEntity.created(null).body(createAdminResponse);
+        Admin admin = adminService.addAdmin(adminStructMap.toAdmin(adminRequest));
+        return ResponseEntity.created(null).body(adminStructMap.toCreateAdminResponse(admin));
     }
     @PostMapping("/signIn")
     public ResponseEntity<Object> signIn(
@@ -73,7 +76,7 @@ public class AdminController {
     @GetMapping("/me")
     public ResponseEntity<Object> me() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        AdminInfoResponse adminInfoResponse = adminService.getAdminByUserName(username);
+        AdminInfoResponse adminInfoResponse = adminStructMap.toAdminInfoResponse(adminService.getAdminByUserName(username));
         return ResponseEntity.ok(adminInfoResponse);
     }
 
@@ -158,7 +161,8 @@ public class AdminController {
             @JsonView(UpdateGroup.class)
             @NotNull
             AdminRequest adminRequest) {
-        adminService.updateAdminInfo(adminRequest);
+        Admin admin = adminStructMap.toAdmin(adminRequest);
+        adminService.updateAdminInfo(admin);
         return ResponseEntity.ok("更新成功");
     }
 
@@ -179,7 +183,9 @@ public class AdminController {
             @RequestBody
             @NotNull
             UpdateAdminAuthRequest updateAdminAuthRequest) {
-        adminService.updateAdminAuth(updateAdminAuthRequest);
+        String username = updateAdminAuthRequest.getUsername();
+        String auth = updateAdminAuthRequest.getAuth();
+        adminService.updateAdminAuth(username,auth);
         return ResponseEntity.ok("更新管理员权限成功");
     }
 }

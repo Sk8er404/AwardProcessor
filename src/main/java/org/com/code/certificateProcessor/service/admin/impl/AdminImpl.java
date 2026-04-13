@@ -43,45 +43,38 @@ public class AdminImpl extends BaseCursorPageService<Admin> implements AdminServ
 
     @Override
     @Transactional
-    public CreateAdminResponse addAdmin(AdminRequest adminRequest) {
+    public Admin addAdmin(Admin admin) {
         try {
-            Admin admin = adminStructMap.toAdmin(adminRequest);
+
             admin.setPassword(bCryptPasswordEncoder.encode(admin.getPassword()));
             admin.setAuth(Auth.ADMIN.getName());
             int rowAffected = adminMapper.addAdmin(admin);
             if (rowAffected != 1) {
                 throw new AdminTableException("添加管理员失败");
             }
-            return adminStructMap.toCreateAdminResponse(admin);
-        } catch (AdminTableException e) {
+            return admin;
+
+        }catch (AdminTableException e){
             throw e;
+        }catch (Exception e){
+            throw new AdminTableException("添加管理员失败",e);
         }
     }
 
     @Override
     public AdminSignInResponse adminSignIn(String username, String password) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new CustomAuthenticationToken(username, password, Auth.ADMIN.getName())
-            );
+        Authentication authentication = authenticationManager.authenticate(
+                new CustomAuthenticationToken(username, password, Auth.ADMIN.getName())
+        );
+        String token = jwtService.getJwtToken(username, authentication.getAuthorities().toArray()[0].toString());
 
-            if (!authentication.isAuthenticated()) {
-                throw new UnauthorizedException("用户名或密码错误");
-            }
-            String token = jwtService.getJwtToken(username, authentication.getAuthorities().toArray()[0].toString());
-
-
-            return new AdminSignInResponse(username, authentication.getAuthorities().toArray()[0].toString(), token);
-        } catch (UnauthorizedException e) {
-            throw e;
-        }
+        return new AdminSignInResponse(username, authentication.getAuthorities().toArray()[0].toString(), token);
     }
 
     @Override
-    public AdminInfoResponse getAdminByUserName(String username) {
+    public Admin getAdminByUserName(String username) {
         try {
-            Admin admin = adminMapper.getAdminByUserName(username);
-            return adminStructMap.toAdminInfoResponse(admin);
+            return adminMapper.getAdminByUserName(username);
         } catch (Exception e) {
             throw new ResourceNotFoundException("管理员信息不存在");
         }
@@ -89,9 +82,8 @@ public class AdminImpl extends BaseCursorPageService<Admin> implements AdminServ
 
     @Override
     @Transactional
-    public void updateAdminInfo(AdminRequest adminRequest) {
+    public void updateAdminInfo(Admin admin) {
         try {
-            Admin admin = adminStructMap.toAdmin(adminRequest);
             admin.setUsername(SecurityContextHolder.getContext().getAuthentication().getName());
             if (admin.getPassword() != null && !admin.getPassword().isEmpty())
                 admin.setPassword(bCryptPasswordEncoder.encode(admin.getPassword()));
@@ -128,16 +120,16 @@ public class AdminImpl extends BaseCursorPageService<Admin> implements AdminServ
 
      @Override
     @Transactional
-    public void updateAdminAuth(UpdateAdminAuthRequest updateAdminAuthRequest) {
-        String username = updateAdminAuthRequest.getUsername();
-        String auth = updateAdminAuthRequest.getAuth();
+    public void updateAdminAuth(String username,String auth) {
         try {
             int rowAffected = adminMapper.updateAdminAuth(username, auth);
             if (rowAffected != 1) {
                 throw new AdminTableException("数据库异常，更新管理员权限失败");
             }
-        } catch (AdminTableException e) {
-                throw e;
+        }catch (AdminTableException e){
+            throw e;
+        }catch (Exception e){
+            throw new AdminTableException("数据库异常，更新管理员权限失败",e);
         }
     }
 }

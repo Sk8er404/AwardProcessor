@@ -48,49 +48,44 @@ public class StudentImpl extends BaseCursorPageService<Student> implements Stude
 
     @Override
     @Transactional
-    public CreateStudentResponse addStudent(StudentRequest studentRequest) {
+    public Student addStudent(Student student) {
         try {
-            Student student = studentStructMap.toStudent(studentRequest);
             student.setPassword(bCryptPasswordEncoder.encode(student.getPassword()));
             student.setAuth(Auth.STUDENT.getName());
             int result = studentMapper.addStudent(student);
             if (result == 0) {
                 throw new StudentTableException("添加学生失败，未插入任何记录");
             }
-            return studentStructMap.toCreateStudentResponse(student);
+            return student;
         }catch (StudentTableException e){
             throw e;
+        }catch (Exception e){
+            throw new StudentTableException("添加学生失败",e);
         }
     }
 
     @Override
     public StudentSignInResponse studentSignIn(String studentId, String password) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new CustomAuthenticationToken(studentId, password, Auth.STUDENT.getName())
-            );
+        Authentication authentication = authenticationManager.authenticate(
+                new CustomAuthenticationToken(studentId, password, Auth.STUDENT.getName())
+        );
+        String token = jwtService.getJwtToken(studentId, Auth.STUDENT.getName());
 
-            if (!authentication.isAuthenticated()) {
-                throw new UnauthorizedException("用户名或密码错误");
-            }
-            String token = jwtService.getJwtToken(studentId, Auth.STUDENT.getName());
-
-            return new StudentSignInResponse(studentId,authentication.getAuthorities().toArray()[0].toString(), token);
-        }catch (UnauthorizedException e) {
-            throw e;
-        }
+        return new StudentSignInResponse(studentId,authentication.getAuthorities().toArray()[0].toString(), token);
     }
 
     @Override
-    public StudentInfoResponse getStudentById(String studentId) {
+    public Student getStudentById(String studentId) {
         try {
             Student student = studentMapper.getStudentById(studentId);
             if(student == null){
                 throw new ResourceNotFoundException("学生信息不存在");
             }
-            return studentStructMap.toStudentInfoResponse(student);
+            return student;
         }catch (ResourceNotFoundException e) {
             throw e;
+        }catch (Exception e){
+            throw new ResourceNotFoundException("查询学生信息失败",e);
         }
     }
 
@@ -133,9 +128,8 @@ public class StudentImpl extends BaseCursorPageService<Student> implements Stude
     }
 
     @Override
-    public void updateStudentInfo(StudentRequest studentRequest){
+    public void updateStudentInfo(Student student){
         try {
-            Student student = studentStructMap.toStudent(studentRequest);
             student.setStudentId(SecurityContextHolder.getContext().getAuthentication().getName());
             if(student.getPassword() != null && !student.getPassword().isEmpty())
                 student.setPassword(bCryptPasswordEncoder.encode(student.getPassword()));

@@ -6,6 +6,5 @@ public class StudentTableException extends RuntimeException {
     }
     public StudentTableException(String message, Throwable cause) {
         super(message, cause);
-        cause.printStackTrace();
     }
 }

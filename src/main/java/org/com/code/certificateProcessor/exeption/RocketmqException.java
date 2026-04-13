@@ -6,6 +6,5 @@ public class RocketmqException extends RuntimeException {
     }
     public RocketmqException(String message, Throwable cause) {
         super(message, cause);
-        cause.printStackTrace();
     }
 }

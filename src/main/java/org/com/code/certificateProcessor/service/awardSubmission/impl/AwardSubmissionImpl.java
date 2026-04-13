@@ -116,6 +116,8 @@ public class AwardSubmissionImpl extends BaseCursorPageService<AwardSubmission> 
                 awardSubmission.setStatus(AwardSubmissionStatus.MANUAL_REJECTED);
             }
             awardSubmissionMapper.updateAwardSubmission(awardSubmission);
+        }catch (AwardSubmissionException e){
+            throw e;
         } catch (Exception e) {
             throw new AwardSubmissionException("数据库异常，审核提交失败", e);
         }

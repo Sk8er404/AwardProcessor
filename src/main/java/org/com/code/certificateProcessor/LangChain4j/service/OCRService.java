@@ -6,7 +6,14 @@ import com.alibaba.dashscope.common.MultiModalMessage;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
+import dev.langchain4j.data.image.Image;
+import dev.langchain4j.data.message.*;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ResponseFormat;
 import org.com.code.certificateProcessor.LangChain4j.config.AgentConfig;
+import org.com.code.certificateProcessor.LangChain4j.config.Model;
+import org.com.code.certificateProcessor.LangChain4j.config.ModelConfig;
+import org.com.code.certificateProcessor.LangChain4j.config.ModelConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +22,18 @@ import java.util.Collections;
 
 @Service
 public class OCRService {
-    @Autowired
-    AgentConfig agentConfig;
 
+    private final ChatModel ocrModel;
+
+    @Autowired
+    public  OCRService(ModelConst modelConst) {
+        this.ocrModel = Model.useQwen().withConfig(
+                ModelConfig.builder()
+                        .modelName(ModelConst.DashScopeModel.qwen3VLFlash)
+                        .apiKey(modelConst.getDashScopeApiKey())
+                        .responseFormat(ResponseFormat.JSON)
+        ).build();
+    }
     private static final String prompt = "请首先判断图片是否为一张奖状或证书。\n" +
             "\n" +
             "- **如果图片内容不是奖状或证书**（例如，是风景、动物、日常照片等）：\n" +
@@ -65,18 +81,15 @@ public class OCRService {
                 "    }";
 
     public String getOCRResult(String imageURL) throws NoApiKeyException, UploadFileException {
-        MultiModalConversation conv = new MultiModalConversation();
-        MultiModalMessage userMessage = MultiModalMessage.builder().role(Role.USER.getValue())
-                .content(Arrays.asList(
-                        Collections.singletonMap("image", imageURL),
-                        Collections.singletonMap("text", prompt))
-                ).build();
-
-        MultiModalConversationParam param = MultiModalConversationParam.builder()
-                .apiKey(agentConfig.getApiKey())
-                .model(AgentConfig.qwen3VLFlash)
-                .message(userMessage)
+        // 构建基于 URL 的 Image 对象
+        Image image = Image.builder()
+                .url(imageURL)
                 .build();
-        return conv.call(param).getOutput().getChoices().get(0).getMessage().getContent().get(0).get("text").toString();
+
+        Content prompt = TextContent.from(OCRService.prompt);
+        Content imageContent = ImageContent.from(image, ImageContent.DetailLevel.MEDIUM);
+
+        ChatMessage userMessage = UserMessage.builder().addContent(prompt).addContent(imageContent).build();
+        return ocrModel.chat(userMessage).aiMessage().text();
     }
 }

@@ -6,6 +6,5 @@ public class StandardAwardException extends RuntimeException {
     }
     public StandardAwardException(String message, Throwable cause) {
         super(message, cause);
-        cause.printStackTrace();
     }
 }

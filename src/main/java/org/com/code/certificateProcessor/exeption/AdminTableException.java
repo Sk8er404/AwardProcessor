@@ -6,6 +6,5 @@ public class AdminTableException extends RuntimeException {
     }
     public AdminTableException(String message, Throwable cause) {
         super(message, cause);
-        cause.printStackTrace();
     }
 }

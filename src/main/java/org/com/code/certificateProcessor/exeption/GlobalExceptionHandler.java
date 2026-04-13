@@ -66,51 +66,163 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(StudentTableException.class)
     public ResponseEntity<Object> handleDatabaseException(StudentTableException ex) {
-        ex.printStackTrace();
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 数据库 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+            // 可以选择打印一条简单的 INFO 日志，或者什么都不做
+            // System.out.println("【业务提示】" + ex.getMessage());
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("数据库异常：" + ex.getMessage());
     }
 
     @ExceptionHandler(AwardSubmissionException.class)
     public ResponseEntity<Object> handleAwardSubmissionException(AwardSubmissionException ex) {
-        ex.printStackTrace();
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 奖状提交 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+            // 可以选择打印一条简单的 INFO 日志，或者什么都不做
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("奖状提交模块异常：" + ex.getMessage());
     }
 
     @ExceptionHandler(AdminTableException.class)
     public ResponseEntity<Object> handleAdminException(AdminTableException ex) {
-        ex.printStackTrace();
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 数据库 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+            // 可以选择打印一条简单的 INFO 日志，或者什么都不做
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("数据库异常：" + ex.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        ex.printStackTrace();
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】资源未找到，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+            // 可以选择打印一条简单的 INFO 日志，或者什么都不做
+        }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("资源未找到：" + ex.getMessage());
     }
 
     @ExceptionHandler(OSSException.class)
     public ResponseEntity<Object> handleOSSException(OSSException ex) {
-        ex.printStackTrace();
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 OSS对象存储 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+            // 可以选择打印一条简单的 INFO 日志，或者什么都不做
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("对象存储服务异常：" + ex.getMessage());
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Object> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
-        ex.printStackTrace();
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 上传 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+            // 可以选择打印一条简单的 INFO 日志，或者什么都不做
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("上传文件大小超出限制：" + ex.getMessage());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException ex) {
-        ex.printStackTrace();
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 认证 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+            // 可以选择打印一条简单的 INFO 日志，或者什么都不做
+        }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("未授权：" + ex.getMessage());
+                .body(ex.getMessage());
+    }
+
+
+
+    @ExceptionHandler(CredentialsException.class)
+    public ResponseEntity<Object> handleCredentialsException(CredentialsException ex) {
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 登录类型 异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+            // 可以选择打印一条简单的 INFO 日志，或者什么都不做
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ex.getMessage());
+    }
+
+
+    @ExceptionHandler(AIModelException.class)
+    public void handleAIModelException(AIModelException ex) {
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 AI 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+        }
+    }
+
+    @ExceptionHandler(ElasticSearchException.class)
+    public void handleElasticSearchException(ElasticSearchException ex) {
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 Elastic 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+        }
+    }
+
+    @ExceptionHandler(RocketmqException.class)
+    public void handleRocketmqException(RocketmqException ex) {
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 Rocketmq 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+        }
+    }
+
+
+    @ExceptionHandler(StandardAwardException.class)
+    public void handleStandardAwardException(StandardAwardException ex) {
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 StandardAward 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+        }
     }
 
 }

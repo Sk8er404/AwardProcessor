@@ -10,6 +10,8 @@ import org.com.code.certificateProcessor.pojo.dto.response.awardSubmissionRespon
 import org.com.code.certificateProcessor.pojo.dto.response.studentResponse.CreateStudentResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.studentResponse.StudentInfoResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.studentResponse.StudentSignInResponse;
+import org.com.code.certificateProcessor.pojo.entity.Student;
+import org.com.code.certificateProcessor.pojo.structMap.StudentStructMap;
 import org.com.code.certificateProcessor.pojo.validation.group.CreateGroup;
 import org.com.code.certificateProcessor.pojo.validation.group.SignInGroup;
 import org.com.code.certificateProcessor.pojo.validation.group.UpdateGroup;
@@ -54,7 +56,7 @@ public class StudentController {
     @Autowired
     private SubmissionProducer submissionProducer;
     @Autowired
-    private StandardAwardService standardAwardService;
+    private StudentStructMap studentStructMap;
 
     @PostMapping("/signUp")
     public ResponseEntity<Object> signUp(
@@ -63,7 +65,8 @@ public class StudentController {
             @Validated(CreateGroup.class)
             @NotNull
             StudentRequest studentRequest) {
-        CreateStudentResponse createStudentResponse = studentService.addStudent(studentRequest);
+        Student student = studentStructMap.toStudent(studentRequest);
+        CreateStudentResponse createStudentResponse = studentStructMap.toCreateStudentResponse(studentService.addStudent(student));;
         return ResponseEntity.created(null).body(createStudentResponse);
     }
     @PostMapping("/signIn")
@@ -82,7 +85,7 @@ public class StudentController {
     @GetMapping("/me")
     public ResponseEntity<Object> me() {
         String studentId = SecurityContextHolder.getContext().getAuthentication().getName();
-        StudentInfoResponse studentInfoResponse = studentService.getStudentById(studentId);
+        StudentInfoResponse studentInfoResponse = studentStructMap.toStudentInfoResponse( studentService.getStudentById(studentId));
         Double sumOfScore = awardSubmissionService.sumApprovedScoreByStudentId(studentId);
         studentInfoResponse.setSumOfScore(sumOfScore);
 
@@ -233,7 +236,8 @@ public class StudentController {
             @Validated(UpdateGroup.class)
             @NotNull(message = "studentRequest 不能为空")
             StudentRequest studentRequest) {
-        studentService.updateStudentInfo(studentRequest);
+        Student student = studentStructMap.toStudent(studentRequest);
+        studentService.updateStudentInfo(student);
         return ResponseEntity.status(HttpStatus.OK).body("更新学生信息成功");
     }
 }

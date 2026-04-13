@@ -39,18 +39,16 @@ public class StandardAwardImpl extends BaseCursorPageService<StandardAward> impl
 
 
     @Override
-    public AdminStandardAwardInfoResponse getStandardAwardById(String standardAwardId) {
+    public StandardAward getStandardAwardById(String standardAwardId) {
         try {
             StandardAward standardAward = standardAwardMapper.getStandardAwardById(standardAwardId);
             if (standardAward == null)
                 throw new ResourceNotFoundException("标准奖状不存在");
-            return standardAwardStructMap.toAdminStandardAwardInfoResponse(standardAward);
-        } catch (StandardAwardException e) {
-            throw e;
+            return standardAward;
         } catch (ResourceNotFoundException e) {
-            throw new StandardAwardException("查询标准奖状详情失败", e);
+            throw e;
         } catch (Exception e) {
-            throw new StandardAwardException("查询标准奖状详情失败", e);
+            throw new ResourceNotFoundException("查询标准奖状详情失败", e);
         }
     }
 
@@ -82,9 +80,8 @@ public class StandardAwardImpl extends BaseCursorPageService<StandardAward> impl
 
     @Override
     @Transactional
-    public void addBatchStandardAward(List<StandardAwardRequest> standardAwardRequestList) {
+    public void addBatchStandardAward(List<StandardAward> standardAwardList) {
         try {
-            List<StandardAward> standardAwardList = standardAwardStructMap.toStandardAwardList(standardAwardRequestList);
 
             String createdBy = SecurityContextHolder.getContext().getAuthentication().getName();
             ULID ulid = new ULID();
@@ -112,9 +109,8 @@ public class StandardAwardImpl extends BaseCursorPageService<StandardAward> impl
 
     @Override
     @Transactional
-    public void updateBatchStandardAward(List<StandardAwardRequest> standardAwardRequestList) {
+    public void updateBatchStandardAward(List<StandardAward> standardAwardList) {
         try {
-            List<StandardAward> standardAwardList = standardAwardStructMap.toStandardAwardList(standardAwardRequestList);
             String updatedBy = SecurityContextHolder.getContext().getAuthentication().getName();
             for (StandardAward standardAward : standardAwardList) {
                 standardAward.setUpdatedBy(updatedBy);

@@ -137,7 +137,10 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                 // 5. 将 清洗过 的 Map 转换为最终的 AwardInfo 对象
                 // 这一步现在是绝对安全的
                 awardInfo = JSONObject.parseObject(JSONObject.toJSONString(ocrMap), AwardInfo.class);
-            } catch (Exception e) {
+            }catch (AIModelException e){
+                throw e;
+            }
+            catch (Exception e) {
                 throw new AIModelException("视觉模型分析图片发生错误", e);
             }
 
@@ -168,13 +171,9 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                  *       "ifCertification":"Yes"
                  *     }
                  */
-                List<String> rankedAwardIds;
-                try {
-                    rankedAwardIds = elasticUtil.hybridSearch(awardInfo.getAwardName(), ESConst.STANDARD_AWARD,
-                            List.of(ESConst.StandardAwardField.AwardName.getFieldName()));
-                } catch (IOException e) {
-                    throw new ElasticSearchException("ElasticSearch 搜索标准奖项发生错误",e);
-                }
+                List<String> rankedAwardIds = elasticUtil.hybridSearch(awardInfo.getAwardName(), ESConst.STANDARD_AWARD,
+                        List.of(ESConst.StandardAwardField.AwardName.getFieldName()));
+
                 List<String> candidateAwardIds = rankedAwardIds.stream().limit(CANDIDATE_AWARD_NUM).toList();
                 if(candidateAwardIds.isEmpty()){
                     throw new ResourceNotFoundException("数据库中还没有任何标准奖项，无法比较");
@@ -242,8 +241,7 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                     .reason(e.getMessage())
                     .build();
             awardSubmissionMapper.updateAwardSubmission(awardSubmission);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // 核心容错逻辑
             int retryCount = message.getReconsumeTimes();
 
@@ -268,8 +266,6 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                 // 第1次(retryCount=0)或第2次(retryCount=1)失败，抛出异常以触发重试
                 LoggerFactory.getLogger(studentAwardSubmissionConsumer.class)
                         .warn("消息处理失败, submissionId: {}  尝试次数: {}/3 即将重试...", submissionId,retryCount + 1, e);
-
-                throw e;
             }
         }
     }
