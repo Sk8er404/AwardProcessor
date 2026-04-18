@@ -11,8 +11,8 @@
     <groupId>org.com.code</groupId>
     <artifactId>AwardProcessor</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>RewardProcessor</name>
-    <description>RewardProcessor</description>
+    <name>AwardProcessor</name>
+    <description>AwardProcessor</description>
     <url/>
     <licenses>
         <license/>
@@ -37,6 +37,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- 阿里云图片视频上传保存 -->

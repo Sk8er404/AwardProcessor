@@ -1,24 +1,16 @@
 package org.com.code.certificateProcessor.LangChain4j.service;
 
-import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversation;
-import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationParam;
-import com.alibaba.dashscope.common.MultiModalMessage;
-import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.data.message.*;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ResponseFormat;
-import org.com.code.certificateProcessor.LangChain4j.config.AgentConfig;
-import org.com.code.certificateProcessor.LangChain4j.config.Model;
-import org.com.code.certificateProcessor.LangChain4j.config.ModelConfig;
-import org.com.code.certificateProcessor.LangChain4j.config.ModelConst;
+import org.com.code.certificateProcessor.LangChain4j.Model;
+import org.com.code.certificateProcessor.LangChain4j.config.ChatModelConfig;
+import org.com.code.certificateProcessor.LangChain4j.constant.ModelConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 @Service
 public class OCRService {
@@ -27,10 +19,10 @@ public class OCRService {
 
     @Autowired
     public  OCRService(ModelConst modelConst) {
-        this.ocrModel = Model.useQwen().withConfig(
-                ModelConfig.builder()
+        this.ocrModel = Model.<ChatModel>useQwen().withConfig(
+                ChatModelConfig.builder()
                         .modelName(ModelConst.DashScopeModel.qwen3VLFlash)
-                        .apiKey(modelConst.getDashScopeApiKey())
+                        .apiKey(modelConst.getDASHSCOPE_API_KEY())
                         .responseFormat(ResponseFormat.JSON)
         ).build();
     }

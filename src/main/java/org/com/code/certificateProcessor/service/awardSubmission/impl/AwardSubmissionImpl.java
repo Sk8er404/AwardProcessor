@@ -1,6 +1,6 @@
 package org.com.code.certificateProcessor.service.awardSubmission.impl;
 
-import org.com.code.certificateProcessor.exeption.AwardSubmissionException;
+import org.com.code.certificateProcessor.exception.AwardSubmissionException;
 import org.com.code.certificateProcessor.mapper.AwardSubmissionMapper;
 import org.com.code.certificateProcessor.pojo.dto.StudentScoreDto;
 import org.com.code.certificateProcessor.pojo.dto.request.CursorPageRequest;

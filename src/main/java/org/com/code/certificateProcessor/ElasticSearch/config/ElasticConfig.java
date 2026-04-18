@@ -4,7 +4,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import jakarta.annotation.PreDestroy;
-import org.com.code.certificateProcessor.ElasticSearch.ESConst;
+import org.com.code.certificateProcessor.ElasticSearch.constant.ESConst;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
@@ -66,7 +66,7 @@ public class ElasticConfig {
 
     @EventListener(ApplicationReadyEvent.class)
     public void initializeIndices() throws IOException {
-        createIndexIfNotExists(ESConst.STANDARD_AWARD, "ElasticSearch/ESIndices/standard_award.json");
+        createIndexIfNotExists(ESConst.IndicesName.STANDARD_AWARD, "ElasticSearch/ESIndices/StandardAward.json");
         // 输出初始化完成信息到控制台
         System.out.println("Indices initialized.");
     }

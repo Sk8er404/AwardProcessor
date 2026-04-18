@@ -1,8 +1,10 @@
-package org.com.code.certificateProcessor.exeption;
+package org.com.code.certificateProcessor.exception;
 
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.com.code.certificateProcessor.exception.elastic.ElasticGeneralException;
+import org.com.code.certificateProcessor.exception.elastic.ReciprocalRankMergeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -191,11 +193,22 @@ public class GlobalExceptionHandler {
         }
     }
 
-    @ExceptionHandler(ElasticSearchException.class)
-    public void handleElasticSearchException(ElasticSearchException ex) {
+    @ExceptionHandler(ElasticGeneralException.class)
+    public void handleElasticSearchException(ElasticGeneralException ex) {
         if (ex.getCause() != null) {
             // 这是一个系统级错误，需要记录详细堆栈以便排查
             System.err.println("【系统错误】检测到 Elastic 服务异常，打印堆栈:");
+            ex.printStackTrace();
+        } else {
+            // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净
+        }
+    }
+
+    @ExceptionHandler(ReciprocalRankMergeException.class)
+    public void handleReciprocalRankMergeException(ReciprocalRankMergeException ex) {
+        if (ex.getCause() != null) {
+            // 这是一个系统级错误，需要记录详细堆栈以便排查
+            System.err.println("【系统错误】检测到 Elastic 融合排序 异常，打印堆栈:");
             ex.printStackTrace();
         } else {
             // 这是一个纯业务错误 (cause == null)，不需要打印堆栈，保持日志干净

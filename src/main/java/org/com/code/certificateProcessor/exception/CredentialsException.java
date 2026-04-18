@@ -1,4 +1,4 @@
-package org.com.code.certificateProcessor.exeption;
+package org.com.code.certificateProcessor.exception;
 
 public class CredentialsException extends RuntimeException {
     public CredentialsException(String message) {

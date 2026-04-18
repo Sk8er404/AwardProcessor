@@ -4,14 +4,12 @@ import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
-import org.com.code.certificateProcessor.ElasticSearch.ESConst;
-import org.com.code.certificateProcessor.LangChain4j.config.AgentConfig;
-import org.com.code.certificateProcessor.LangChain4j.config.Model;
-import org.com.code.certificateProcessor.LangChain4j.config.ModelConfig;
-import org.com.code.certificateProcessor.LangChain4j.config.ModelConst;
-import org.com.code.certificateProcessor.exeption.AIModelException;
+import org.com.code.certificateProcessor.ElasticSearch.constant.ESConst;
+import org.com.code.certificateProcessor.LangChain4j.Model;
+import org.com.code.certificateProcessor.LangChain4j.config.EmbeddingModelConfig;
+import org.com.code.certificateProcessor.LangChain4j.constant.ModelConst;
+import org.com.code.certificateProcessor.exception.AIModelException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,12 +23,12 @@ public class EmbeddingService {
 
     @Autowired
     public EmbeddingService(ModelConst modelConst) {
-        this.embeddingModel = Model.useQwen()
-                .withConfig(ModelConfig.builder()
-                        .apiKey(modelConst.getDashScopeApiKey())
+        this.embeddingModel = Model.<EmbeddingModel>useQwen()
+                .withConfig(EmbeddingModelConfig.builder()
+                        .apiKey(modelConst.getDASHSCOPE_API_KEY())
                         .modelName(ModelConst.DashScopeModel.textEmbeddingModel)
                         .dimension(ESConst.Vector_DIM)
-                ).buildEmbeddingModel();
+                ).build();
 
     }
 

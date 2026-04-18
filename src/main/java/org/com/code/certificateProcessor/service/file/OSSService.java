@@ -3,13 +3,11 @@ package org.com.code.certificateProcessor.service.file;
 import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.*;
-import org.com.code.certificateProcessor.exeption.OSSException;
+import org.com.code.certificateProcessor.exception.OSSException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

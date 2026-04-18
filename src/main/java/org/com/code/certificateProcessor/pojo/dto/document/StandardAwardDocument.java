@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class StandardAwardDocument {
+public class StandardAwardDocument{
     private long id;
     private String standardAwardId;
     private String name;

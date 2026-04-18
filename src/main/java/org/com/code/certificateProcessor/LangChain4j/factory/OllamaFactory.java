@@ -1,53 +1,50 @@
 package org.com.code.certificateProcessor.LangChain4j.factory;
 
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
-import dev.langchain4j.community.model.dashscope.QwenEmbeddingModel;
 import dev.langchain4j.community.model.dashscope.QwenStreamingChatModel;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.request.DefaultChatRequestParameters;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.ollama.OllamaChatModel;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
+import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.model.scoring.ScoringModel;
-import lombok.AllArgsConstructor;
 import org.com.code.certificateProcessor.LangChain4j.config.*;
 
-@AllArgsConstructor
-public class QwenFactory implements ModelFactory {
-
+public class OllamaFactory implements ModelFactory{
     @Override
     public ChatModel createChatModel(ChatModelConfig config) {
-        return QwenChatModel.builder()
-                .apiKey(config.getApiKey())
+        return OllamaChatModel.builder()
                 .modelName(config.getModelName())
-                .temperature(config.getTemperature().floatValue())
-                .maxTokens(config.getMaxTokens())
+                .temperature(config.getTemperature())
+                .timeout(config.getTimeout())
+                .maxRetries(config.getMaxRetries())
                 .defaultRequestParameters(DefaultChatRequestParameters.builder().responseFormat(config.getResponseFormat()).build())
                 .build();
     }
 
     @Override
     public StreamingChatModel createStreamingChatModel(StreamingModelConfig config) {
-        return QwenStreamingChatModel.builder()
-                .apiKey(config.getApiKey())
+        return OllamaStreamingChatModel.builder()
                 .modelName(config.getModelName())
-                .temperature(config.getTemperature().floatValue())
-                .maxTokens(config.getMaxTokens())
+                .temperature(config.getTemperature())
+                .timeout(config.getTimeout())
                 .defaultRequestParameters(DefaultChatRequestParameters.builder().responseFormat(config.getResponseFormat()).build())
                 .build();
     }
 
     @Override
     public EmbeddingModel createEmbeddingModel(EmbeddingModelConfig config) {
-        return QwenEmbeddingModel.builder()
-                .apiKey(config.getApiKey())
+        return OllamaEmbeddingModel.builder()
                 .modelName(config.getModelName())
-                .dimension(config.getDimension())
+                .timeout(config.getTimeout())
+                .maxRetries(config.getMaxRetries())
                 .build();
     }
 
-    // DashScope版本的 Langchain4j 还不支持重排模型
     @Override
     public ScoringModel createScoringModel(ScoringModelConfig config) {
-       return null;
+        return null;
     }
 }

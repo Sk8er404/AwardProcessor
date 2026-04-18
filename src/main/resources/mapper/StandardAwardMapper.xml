@@ -127,7 +127,7 @@
     </delete>
     
     <select id="getAwardsByBatchId" parameterType="List" resultType="StandardAward">
-        select standardAwardId,name,category,level,score,createdBy,updatedBy,createdAt,updatedAt
+        select standardAwardId,name,category,level
         from standard_award
         <where>
             <if test="list != null and list.size() > 0">

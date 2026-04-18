@@ -1,17 +1,13 @@
 package org.com.code.certificateProcessor.service.admin.impl;
 
-import org.com.code.certificateProcessor.exeption.AdminTableException;
-import org.com.code.certificateProcessor.exeption.ResourceNotFoundException;
-import org.com.code.certificateProcessor.exeption.UnauthorizedException;
+import org.com.code.certificateProcessor.exception.AdminTableException;
+import org.com.code.certificateProcessor.exception.ResourceNotFoundException;
 import org.com.code.certificateProcessor.mapper.AdminMapper;
-import org.com.code.certificateProcessor.pojo.dto.request.adminRequest.UpdateAdminAuthRequest;
 import org.com.code.certificateProcessor.pojo.dto.request.CursorPageRequest;
 import org.com.code.certificateProcessor.pojo.dto.response.CursorPageResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.AdminInfoResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.AdminSignInResponse;
-import org.com.code.certificateProcessor.pojo.dto.response.adminResponse.CreateAdminResponse;
 import org.com.code.certificateProcessor.pojo.entity.Admin;
-import org.com.code.certificateProcessor.pojo.dto.request.adminRequest.AdminRequest;
 import org.com.code.certificateProcessor.pojo.enums.Auth;
 import org.com.code.certificateProcessor.pojo.structMap.AdminStructMap;
 import org.com.code.certificateProcessor.security.CustomAuthenticationToken;

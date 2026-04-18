@@ -1,4 +1,4 @@
-package org.com.code.certificateProcessor.exeption;
+package org.com.code.certificateProcessor.exception;
 
 public class RocketmqException extends RuntimeException {
     public RocketmqException(String message) {

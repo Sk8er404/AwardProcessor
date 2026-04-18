@@ -2,7 +2,7 @@ package org.com.code.certificateProcessor.service.file;
 
 import com.aliyun.oss.model.*;
 import de.huxhorn.sulky.ulid.ULID;
-import org.com.code.certificateProcessor.exeption.OSSException;
+import org.com.code.certificateProcessor.exception.OSSException;
 import org.com.code.certificateProcessor.mapper.AwardSubmissionMapper;
 import org.com.code.certificateProcessor.pojo.dto.oss.PartETagDTO;
 import org.com.code.certificateProcessor.pojo.entity.AwardSubmission;

@@ -5,10 +5,10 @@
   },
   "mappings": {
     "properties": {
-      "standardAwardId": {
+      "standard_award_id": {
         "type": "keyword"
       },
-      "awardName": {
+      "award_name": {
         "type": "text",
         "analyzer": "ik_max_word",
         "search_analyzer": "ik_smart",
@@ -19,10 +19,10 @@
           }
         }
       },
-      "isActive": {
+      "is_active": {
         "type": "boolean"
       },
-      "nameVector": {
+      "name_vector": {
         "type": "dense_vector",
         "dims": 768,
         "index": true,

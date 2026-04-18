@@ -1,7 +1,7 @@
 package org.com.code.certificateProcessor.security.authenticationProvider;
 
-import org.com.code.certificateProcessor.exeption.CredentialsException;
-import org.com.code.certificateProcessor.exeption.UnauthorizedException;
+import org.com.code.certificateProcessor.exception.CredentialsException;
+import org.com.code.certificateProcessor.exception.UnauthorizedException;
 import org.com.code.certificateProcessor.pojo.enums.Auth;
 import org.com.code.certificateProcessor.security.CustomAuthenticationToken;
 import org.com.code.certificateProcessor.security.userDetailService.AdminUserDetailsService;

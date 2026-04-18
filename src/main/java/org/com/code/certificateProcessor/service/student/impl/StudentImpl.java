@@ -1,17 +1,14 @@
 package org.com.code.certificateProcessor.service.student.impl;
 
-import org.com.code.certificateProcessor.exeption.ResourceNotFoundException;
-import org.com.code.certificateProcessor.exeption.StudentTableException;
-import org.com.code.certificateProcessor.exeption.UnauthorizedException;
+import org.com.code.certificateProcessor.exception.ResourceNotFoundException;
+import org.com.code.certificateProcessor.exception.StudentTableException;
 import org.com.code.certificateProcessor.mapper.AwardSubmissionMapper;
 import org.com.code.certificateProcessor.mapper.StudentMapper;
 import org.com.code.certificateProcessor.pojo.dto.StudentScoreDto;
 import org.com.code.certificateProcessor.pojo.dto.request.CursorPageRequest;
-import org.com.code.certificateProcessor.pojo.dto.response.studentResponse.CreateStudentResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.studentResponse.StudentInfoResponse;
 import org.com.code.certificateProcessor.pojo.dto.response.studentResponse.StudentSignInResponse;
 import org.com.code.certificateProcessor.pojo.entity.Student;
-import org.com.code.certificateProcessor.pojo.dto.request.StudentRequest;
 import org.com.code.certificateProcessor.pojo.dto.response.CursorPageResponse;
 import org.com.code.certificateProcessor.pojo.enums.Auth;
 import org.com.code.certificateProcessor.pojo.structMap.StudentStructMap;

@@ -2,15 +2,15 @@ package org.com.code.certificateProcessor.rocketMQ.consumer;
 
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.spring.annotation.ConsumeMode;
-import org.com.code.certificateProcessor.ElasticSearch.ESConst;
+import org.com.code.certificateProcessor.ElasticSearch.constant.DocField;
+import org.com.code.certificateProcessor.ElasticSearch.constant.ESConst;
+import org.com.code.certificateProcessor.LangChain4j.httpclient.rerankModel.RerankService;
 import org.com.code.certificateProcessor.pojo.modelInfo.AwardClassification;
 import org.com.code.certificateProcessor.pojo.modelInfo.DeduplicationResult;
 import org.com.code.certificateProcessor.LangChain4j.service.ClassificationService;
 import org.com.code.certificateProcessor.LangChain4j.service.OCRService;
-import org.com.code.certificateProcessor.exeption.AIModelException;
-import org.com.code.certificateProcessor.exeption.ElasticSearchException;
-import org.com.code.certificateProcessor.exeption.ResourceNotFoundException;
-import org.com.code.certificateProcessor.exeption.RocketmqException;
+import org.com.code.certificateProcessor.exception.AIModelException;
+import org.com.code.certificateProcessor.exception.ResourceNotFoundException;
 import org.com.code.certificateProcessor.mapper.StandardAwardMapper;
 import org.com.code.certificateProcessor.mapper.StudentMapper;
 import org.com.code.certificateProcessor.pojo.entity.AwardSubmission;
@@ -19,7 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.rocketmq.spring.annotation.MessageModel;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
-import org.com.code.certificateProcessor.ElasticSearch.Service.ElasticUtil;
+import org.com.code.certificateProcessor.ElasticSearch.ElasticUtil;
 import org.com.code.certificateProcessor.pojo.modelInfo.AwardInfo;
 import org.com.code.certificateProcessor.mapper.AwardSubmissionMapper;
 import org.com.code.certificateProcessor.pojo.enums.AwardSubmissionStatus;
@@ -36,13 +36,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets; // 3. 导入 Charsets
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 @RocketMQMessageListener(topic = MQConstants.Topic.SUBMISSION,
@@ -62,13 +62,15 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
     @Autowired
     private ElasticUtil elasticUtil;
     @Autowired
+    private RerankService rerankService;
+    @Autowired
     private StandardAwardMapper standardAwardMapper;
     @Autowired
     private ClassificationService classificationService;
     @Autowired
     StudentMapper studentMapper;
 
-    private static final int CANDIDATE_AWARD_NUM = 5;
+    private static final int CANDIDATE_AWARD_NUM = 15;
     @Autowired
     private OSSService oSSService;
 
@@ -171,10 +173,20 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                  *       "ifCertification":"Yes"
                  *     }
                  */
-                List<String> rankedAwardIds = elasticUtil.hybridSearch(awardInfo.getAwardName(), ESConst.STANDARD_AWARD,
-                        List.of(ESConst.StandardAwardField.AwardName.getFieldName()));
+                // 开始 RAG 混合搜索
+                List<Map> rankedAwardIds = elasticUtil.hybridSearch(
+                        awardInfo.getAwardName(), ESConst.IndicesName.STANDARD_AWARD,
+                        List.of(DocField.StandardAwardField.AWARD_NAME),
+                        List.of(DocField.StandardAwardField.NAME_VECTOR),
+                        List.of(DocField.StandardAwardField.STANDARD_AWARD_ID),
+                        CANDIDATE_AWARD_NUM);
 
-                List<String> candidateAwardIds = rankedAwardIds.stream().limit(CANDIDATE_AWARD_NUM).toList();
+                List<String> candidateAwardIds =
+                        rankedAwardIds.stream()
+                                .map(map -> (String) map.get(DocField.StandardAwardField.STANDARD_AWARD_ID))
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+
                 if(candidateAwardIds.isEmpty()){
                     throw new ResourceNotFoundException("数据库中还没有任何标准奖项，无法比较");
                 }
@@ -183,7 +195,17 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                     throw new ResourceNotFoundException("Mysql 数据库和 ElasticSearch 数据不匹配，转人工");
                 }
 
-                AwardClassification awardClassification =classificationService.getClassificationAgent().classifyAward(awardInfo,standardAwards);
+                //开始重排
+                List<String> awardNameList = standardAwards.stream().map(StandardAward::getName).toList();
+
+                List<Integer> indexList = rerankService.rerankDocuments(awardInfo.getAwardName(),awardNameList);
+
+                List<StandardAward> rerankedStandardAwardList = indexList.stream()
+                        .map(i->{
+                            return standardAwards.get(i);
+                        }).toList();
+
+                AwardClassification awardClassification =classificationService.getClassificationAgent().classifyAward(awardInfo,rerankedStandardAwardList);
 
                 if(!awardClassification.getMatchFound()){
                     awardSubmission.setReason("奖项匹配结果 : "+awardClassification.getReasoning());

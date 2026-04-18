@@ -138,6 +138,10 @@ public class StudentController {
         if (uploadInfo == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("上传信息不存在");
 
+        String studentId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!uploadInfo.get(FileUploadMapKey.studentId).equals(studentId))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("不是当前上传文件句柄的归属者");
+
         int totalPartCount = (int) uploadInfo.get(FileUploadMapKey.totalPartCount);
         if (chunkSerialNumber > totalPartCount|| chunkSerialNumber < 1)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("分片序号超出范围");
@@ -187,6 +191,9 @@ public class StudentController {
         if (uploadInfo == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("上传信息不存在");
 
+        String studentId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!uploadInfo.get(FileUploadMapKey.studentId).equals(studentId))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("不是当前上传文件句柄的归属者");
 
         fileManageService.completeMultipartUpload(uploadId, uploadInfo);
 
