@@ -71,8 +71,4 @@ public class JWTService {
             throw new ResourceNotFoundException("检查token失败",e);
         }
     }
-
-    public void deleteToken(String token) {
-        objectRedisTemplate.opsForHash().delete("Auth", token);
-    }
 }

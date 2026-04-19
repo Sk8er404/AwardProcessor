@@ -94,8 +94,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/student/signUp").permitAll()
                         .requestMatchers("/api/student/signIn").permitAll() // 确保登录页面可访问
-                        .requestMatchers("/api/admin/signIn",
-                                "/api/admin/signUp").permitAll()
+                        .requestMatchers("/api/admin/signIn").permitAll()
                         .requestMatchers("/api/standardAward/cursorGetBatchByAdmin",
                                 "/api/standardAward/createBatch",
                                 "/api/standardAward/updateBatch",
@@ -106,8 +105,9 @@ public class SecurityConfig {
                                 "/api/admin/reviewSubmission",
                                 "/api/admin/getStudentInfo",
                                 "/api/admin/updateInfo").hasAnyAuthority(Auth.ADMIN.getName(),Auth.SUPER_ADMIN.getName())
-                        .requestMatchers("/api/admin/updateAuth",
-                                // 只有超级管理员才能注册新的管理员账号
+                        .requestMatchers(
+                                "/api/admin/signUp",// 只有超级管理员才能注册新的管理员账号
+                                "/api/admin/updateAuth",
                                 "/api/admin/cursorQueryAdmin").hasAuthority(Auth.SUPER_ADMIN.getName())
                         .requestMatchers("/api/standardAward/cursorGetBatchByStudent").hasAnyAuthority(Auth.STUDENT.getName())
                         .anyRequest().authenticated() // 其他所有请求都需要认证

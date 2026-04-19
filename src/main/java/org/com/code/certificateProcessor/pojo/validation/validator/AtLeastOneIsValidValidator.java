@@ -24,7 +24,7 @@ public class AtLeastOneIsValidValidator implements ConstraintValidator<AtLeastOn
 
                 Object subObject = field.get(object);
                 if(subObject != null){
-                    if(!(object instanceof String) || !((String)subObject).isEmpty()){
+                    if(!(subObject instanceof String) || !((String)subObject).isEmpty()){
                         return true;
                     }
                 }
