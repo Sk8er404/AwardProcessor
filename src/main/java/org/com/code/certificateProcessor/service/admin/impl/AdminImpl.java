@@ -22,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -41,9 +42,12 @@ public class AdminImpl extends BaseCursorPageService<Admin> implements AdminServ
     @Transactional
     public Admin addAdmin(Admin admin) {
         try {
-
+            Instant currentTime = Instant.now();
             admin.setPassword(bCryptPasswordEncoder.encode(admin.getPassword()));
             admin.setAuth(Auth.ADMIN.getName());
+            admin.setCreatedAt(currentTime);
+            admin.setUpdatedAt(currentTime);
+
             int rowAffected = adminMapper.addAdmin(admin);
             if (rowAffected != 1) {
                 throw new AdminTableException("添加管理员失败");
@@ -80,6 +84,8 @@ public class AdminImpl extends BaseCursorPageService<Admin> implements AdminServ
     @Transactional
     public void updateAdminInfo(Admin admin) {
         try {
+            Instant currentTime = Instant.now();
+            admin.setUpdatedAt(currentTime);
             admin.setUsername(SecurityContextHolder.getContext().getAuthentication().getName());
             if (admin.getPassword() != null && !admin.getPassword().isEmpty())
                 admin.setPassword(bCryptPasswordEncoder.encode(admin.getPassword()));

@@ -49,21 +49,16 @@ public class SubmissionProducer {
 
             @Override
             public void onException(Throwable throwable) {
-               try {
-                   Map<String, Object> completeUploadInfo = JSONObject.parseObject(msg, Map.class);
-                   String submissionId = completeUploadInfo.get(FileUploadMapKey.submissionId).toString();
-                   AwardSubmission awardSubmission = AwardSubmission.builder()
-                           .submissionId(submissionId)
-                           .status(AwardSubmissionStatus.ERROR_NEED_TO_MANUAL_REVIEW)
-                           .build();
-                   awardSubmissionMapper.updateAwardSubmission(awardSubmission);
+                System.err.println("====== 发送失败了！======");
+                throwable.printStackTrace();
 
-                   throw new RocketmqException("生产者发送消息失败,消息标签为:" + destination + ", 消息体为:" + msg,throwable);
-               }catch (RocketmqException e){
-                   throw e;
-               }catch (Exception e){
-                   throw new RocketmqException("[错误1]: 消息队列 JSON 反序列化失败\n[错误2]: 生产者发送消息失败,消息标签为:" + destination + ", 消息体为:" + msg,throwable);
-               }
+                Map<String, Object> completeUploadInfo = JSONObject.parseObject(msg, Map.class);
+                String submissionId = completeUploadInfo.get(FileUploadMapKey.submissionId).toString();
+                AwardSubmission awardSubmission = AwardSubmission.builder()
+                        .submissionId(submissionId)
+                        .status(AwardSubmissionStatus.ERROR_NEED_TO_MANUAL_REVIEW)
+                        .build();
+                awardSubmissionMapper.updateAwardSubmission(awardSubmission);
             }
         });
     }

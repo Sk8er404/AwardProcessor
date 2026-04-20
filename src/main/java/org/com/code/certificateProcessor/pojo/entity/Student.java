@@ -2,6 +2,7 @@ package org.com.code.certificateProcessor.pojo.entity;
 
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Builder
@@ -18,8 +19,8 @@ public class Student {
   private String college;
   private String major;
   private String auth;
-  private LocalDate createdAt;
-  private LocalDate updatedAt;
+  private Instant createdAt;
+  private Instant updatedAt;
 
   private Double sumOfScore;
 }

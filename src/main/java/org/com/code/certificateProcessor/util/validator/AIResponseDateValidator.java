@@ -32,13 +32,13 @@ public class AIResponseDateValidator {
             return null;
         }
 
-        // 步骤 1: 预处理。这是修复 "2000-00-00" 错误的核心。
+        // 预处理。比如，修复 "2000-00-00" 错误
         // 将所有非法的 "00" 月份或 "00" 日期替换为 "01"。
         String cleanedStr = dateStr.replace("-00", "-01");
 
         Matcher matcher;
 
-        // 场景 1: YYYY-MM-DD (最常见)
+        // 场景 1: YYYY-MM-DD
         matcher = PATTERN_YYYY_MM_DD.matcher(cleanedStr);
         if (matcher.matches()) {
             try {
@@ -51,7 +51,7 @@ public class AIResponseDateValidator {
         }
 
         // 场景 2: YYYY-MM (AI 未按 OCRService 提示补全 "日")
-        // 对应您在 OCRService 中的规则
+        // 对应在 OCRService 中的规则
         matcher = PATTERN_YYYY_MM.matcher(cleanedStr);
         if (matcher.matches()) {
             try {

@@ -2,7 +2,7 @@ package org.com.code.certificateProcessor.pojo.dto.response.studentResponse;
 
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -14,7 +14,7 @@ public class StudentInfoResponse{
     private String name;
     private String college;
     private String major;
-    private LocalDate createdAt;
-    private LocalDate updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private Double sumOfScore;
 }

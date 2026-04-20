@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch._types.KnnSearch;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
+import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
 import co.elastic.clients.elasticsearch.core.msearch.MultiSearchResponseItem;
 import co.elastic.clients.elasticsearch.core.msearch.RequestItem;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -96,7 +97,8 @@ public class ElasticUtil {
                 .operations(bulkOperations)
         );
 
-        client.bulk(bulkRequest);
+        BulkResponse response = client.bulk(bulkRequest);
+        responsePrinter(response);
     }
 
     /**
@@ -144,7 +146,8 @@ public class ElasticUtil {
         BulkRequest bulkRequest = BulkRequest.of(b -> b
                 .operations(bulkOperations)
         );
-        client.bulk(bulkRequest);
+        BulkResponse response = client.bulk(bulkRequest);
+        responsePrinter(response);
     }
 
     @Getter
@@ -180,7 +183,8 @@ public class ElasticUtil {
         BulkRequest bulkRequest = BulkRequest.of(b -> b
                 .operations(bulkOperations)
         );
-        client.bulk(bulkRequest);
+        BulkResponse response = client.bulk(bulkRequest);
+        responsePrinter(response);
     }
 
     /**
@@ -365,5 +369,20 @@ public class ElasticUtil {
                 .limit(maxResultSize)
                 .collect(Collectors.toList());
 
+    }
+
+    public void responsePrinter(BulkResponse response){
+        if (response.errors()) {
+            System.err.println("Bulk indexing had errors:");
+            for (BulkResponseItem item : response.items()) {
+                if (item.error() != null) {
+                    System.err.println("Index: " + item.index() +
+                            ", ID: " + item.id() +
+                            ", Error: " + item.error().reason());
+                }
+            }
+        } else {
+            System.out.println("Bulk indexing successful in " + response.took() + " ms");
+        }
     }
 }

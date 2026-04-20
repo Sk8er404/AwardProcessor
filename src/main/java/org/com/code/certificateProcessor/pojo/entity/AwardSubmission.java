@@ -4,6 +4,7 @@ import lombok.*;
 import org.com.code.certificateProcessor.pojo.enums.AwardSubmissionStatus;
 import org.com.code.certificateProcessor.pojo.enums.DuplicateCheckResult;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,6 @@ public class AwardSubmission {
   private String duplicateSubmissionId;
   private DuplicateCheckResult duplicateCheckResult;
   private String reviewedBy;
-  private LocalDate submittedAt;
-  private LocalDate completedAt;
+  private Instant submittedAt;
+  private Instant completedAt;
 }

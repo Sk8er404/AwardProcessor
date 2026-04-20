@@ -5,6 +5,7 @@ import org.apache.rocketmq.spring.annotation.ConsumeMode;
 import org.com.code.certificateProcessor.ElasticSearch.constant.DocField;
 import org.com.code.certificateProcessor.ElasticSearch.constant.ESConst;
 import org.com.code.certificateProcessor.LangChain4j.httpclient.rerankModel.RerankService;
+import org.com.code.certificateProcessor.exception.RocketmqException;
 import org.com.code.certificateProcessor.pojo.modelInfo.AwardClassification;
 import org.com.code.certificateProcessor.pojo.modelInfo.DeduplicationResult;
 import org.com.code.certificateProcessor.LangChain4j.service.ClassificationService;
@@ -37,6 +38,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets; // 3. 导入 Charsets
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -100,7 +102,7 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
 
             String imageObjectKey = completeUploadInfo.get(FileUploadMapKey.imageObjectKey).toString();
 
-            String temporaryCompressedImageUrl = oSSService.generateTemporaryCompressedImageUrl(imageObjectKey,180);
+            String temporaryCompressedImageUrl = oSSService.generateTemporaryCompressedImageUrl(imageObjectKey, 180);
 
             AwardInfo awardInfo;
             try {
@@ -139,10 +141,9 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                 // 5. 将 清洗过 的 Map 转换为最终的 AwardInfo 对象
                 // 这一步现在是绝对安全的
                 awardInfo = JSONObject.parseObject(JSONObject.toJSONString(ocrMap), AwardInfo.class);
-            }catch (AIModelException e){
+            } catch (AIModelException e) {
                 throw e;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new AIModelException("视觉模型分析图片发生错误", e);
             }
 
@@ -153,17 +154,17 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                     .ocrFullText(awardInfo.toMap())
                     .build();
 
-            if(awardInfo.getIfCertification().equals("No")){
+            if (awardInfo.getIfCertification().equals("No")) {
                 awardSubmission.setReason("不是一张奖状或证书");
-            }else if(awardInfo.getIsReadable().equals("No")){
+            } else if (awardInfo.getIsReadable().equals("No")) {
                 awardSubmission.setReason("图片是奖状或证书，但内容模糊无法准确识别。");
-            }else if(awardInfo.getStudentName() == null||awardInfo.getStudentName().isEmpty()){
+            } else if (awardInfo.getStudentName() == null || awardInfo.getStudentName().isEmpty()) {
                 awardSubmission.setReason("图片中没有出现学生姓名");
-            }else if(!awardInfo.getStudentName().equals(studentName)){
+            } else if (!awardInfo.getStudentName().equals(studentName)) {
                 awardSubmission.setReason("学生姓名不匹配");
-            }else if (awardInfo.getAwardName() == null||awardInfo.getAwardName().isEmpty()){
+            } else if (awardInfo.getAwardName() == null || awardInfo.getAwardName().isEmpty()) {
                 awardSubmission.setReason("图片中没有出现奖项名称");
-            }else{
+            } else {
                 /**
                  * 如果是奖状，则 awardInfo 包含以下字段信息
                  *     {
@@ -187,28 +188,28 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                                 .filter(Objects::nonNull)
                                 .collect(Collectors.toList());
 
-                if(candidateAwardIds.isEmpty()){
-                    throw new ResourceNotFoundException("数据库中还没有任何标准奖项，无法比较");
+                if (candidateAwardIds.isEmpty()) {
+                    throw new ResourceNotFoundException("数据库中还没有任何匹配的标准奖项，无法比较");
                 }
                 List<StandardAward> standardAwards = standardAwardMapper.getAwardsByBatchId(candidateAwardIds);
-                if(standardAwards == null || standardAwards.isEmpty()){
+                if (standardAwards == null || standardAwards.isEmpty()) {
                     throw new ResourceNotFoundException("Mysql 数据库和 ElasticSearch 数据不匹配，转人工");
                 }
 
                 //开始重排
                 List<String> awardNameList = standardAwards.stream().map(StandardAward::getName).toList();
 
-                List<Integer> indexList = rerankService.rerankDocuments(awardInfo.getAwardName(),awardNameList);
+                List<Integer> indexList = rerankService.rerankDocuments(awardInfo.getAwardName(), awardNameList);
 
                 List<StandardAward> rerankedStandardAwardList = indexList.stream()
-                        .map(i->{
+                        .map(i -> {
                             return standardAwards.get(i);
                         }).toList();
 
-                AwardClassification awardClassification =classificationService.getClassificationAgent().classifyAward(awardInfo,rerankedStandardAwardList);
+                AwardClassification awardClassification = classificationService.getClassificationAgent().classifyAward(awardInfo, rerankedStandardAwardList);
 
-                if(!awardClassification.getMatchFound()){
-                    awardSubmission.setReason("奖项匹配结果 : "+awardClassification.getReasoning());
+                if (!awardClassification.getMatchFound()) {
+                    awardSubmission.setReason("奖项匹配结果 : " + awardClassification.getReasoning());
                 }
 
                 List<AwardSubmission> awardSubmissions = awardSubmissionMapper.getSubmissionsForDuplicateCheck(
@@ -219,19 +220,19 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                 );
 
                 StringBuilder reasonBuilder = new StringBuilder();
-                DeduplicationResult deduplicationResult = classificationService.getClassificationAgent().checkForDuplicate(awardInfo,awardSubmissions);
+                DeduplicationResult deduplicationResult = classificationService.getClassificationAgent().checkForDuplicate(awardInfo, awardSubmissions);
                 reasonBuilder.append("奖项匹配结果 : ").append(awardClassification.getReasoning())
                         .append("\n");
 
 
-                if(deduplicationResult.getDuplicated()){
+                if (deduplicationResult.getDuplicated()) {
                     reasonBuilder.append("查重结果 : ").append("可能相似的旧奖项的名称为 <").append(deduplicationResult.getMatchedAwardName())
                             .append(">，认为奖项重复的理由 ：").append(deduplicationResult.getReasoning());
 
                     awardSubmission.setDuplicateCheckResult(DuplicateCheckResult.IS_DUPLICATE);
                     awardSubmission.setDuplicateSubmissionId(deduplicationResult.getMatchedAwardId());
                     awardSubmission.setReason(reasonBuilder.toString());
-                } else{
+                } else {
                     reasonBuilder.append("查重结果 : ").append("可能相似的旧奖项名称为 <")
                             .append(deduplicationResult.getMatchedAwardName())
                             .append(">，认为奖项不重复的理由 ：").append(deduplicationResult.getReasoning());
@@ -254,8 +255,9 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
 
             // 业务“成功”后，删除这个key，表示“处理完毕”
             objectRedisTemplate.opsForHash().delete(FileManageService.IfSubmissionGotRevoked, submissionId);
+            awardSubmission.setCompletedAt(Instant.now());
             awardSubmissionMapper.updateAwardSubmission(awardSubmission);
-        } catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             // 更新数据库状态为 ERROR_NEED_TO_MANUAL_REVIEW
             AwardSubmission awardSubmission = AwardSubmission.builder()
                     .submissionId(submissionId)
@@ -264,30 +266,36 @@ public class studentAwardSubmissionConsumer implements RocketMQListener<MessageE
                     .build();
             awardSubmissionMapper.updateAwardSubmission(awardSubmission);
         } catch (Exception e) {
-            // 核心容错逻辑
             int retryCount = message.getReconsumeTimes();
+            int maxRetryLimit = 2; // 0, 1, 2 总共3次
 
-            // 我们要重试3次 (retryCount 0, 1, 2)
-            if (retryCount > 2) {
-                // 这是第3次失败 (retryCount=2)，不再重试
-                LoggerFactory.getLogger(studentAwardSubmissionConsumer.class)
-                        .error("消息处理失败 3 次, submissionId: {}. 放弃重试，转为人工审核。", e);
+            if (retryCount >= maxRetryLimit) {
+                try {
+                    // 1. 更新状态为人工审核
+                    AwardSubmission awardSubmission = AwardSubmission.builder()
+                            .submissionId(submissionId)
+                            .status(AwardSubmissionStatus.ERROR_NEED_TO_MANUAL_REVIEW)
+                            .reason("图片处理达到上限异常: " + e.getMessage())
+                            .build();
+                    awardSubmissionMapper.updateAwardSubmission(awardSubmission);
 
-                // 更新数据库状态为 ERROR_NEED_TO_MANUAL_REVIEW
-                AwardSubmission awardSubmission = AwardSubmission.builder()
-                        .submissionId(submissionId)
-                        .status(AwardSubmissionStatus.ERROR_NEED_TO_MANUAL_REVIEW)
-                        .reason("图片处理异常: " + e.getMessage())
-                        .build();
-                awardSubmissionMapper.updateAwardSubmission(awardSubmission);
+                    // 2. 清理 Redis
+                    objectRedisTemplate.opsForHash().delete(FileManageService.IfSubmissionGotRevoked, submissionId);
 
-                // 关键：不抛出异常，消息被“成功消费”，不会再重试或进入死信队列
-                // 此时也“删除”key，因为这个消息的处理“已终结”
-                objectRedisTemplate.opsForHash().delete(FileManageService.IfSubmissionGotRevoked, submissionId);
+                    System.err.println(String.format("ID: %s 最终处理失败，已转入人工。原因: %s", submissionId, e.getMessage()));
+
+                    // 3. 此处不再抛出异常，返回消费成功（CONSUME_SUCCESS）
+                    // 阻止 RocketMQ 继续重试或丢入死信队列
+                    return;
+                } catch (Exception dbEx) {
+                    // 如果更新数据库都失败了，建议还是抛出异常，让消息下次再试
+                    throw new RocketmqException("数据库状态更新失败，需再次重试", dbEx);
+                }
             } else {
-                // 第1次(retryCount=0)或第2次(retryCount=1)失败，抛出异常以触发重试
-                LoggerFactory.getLogger(studentAwardSubmissionConsumer.class)
-                        .warn("消息处理失败, submissionId: {}  尝试次数: {}/3 即将重试...", submissionId,retryCount + 1, e);
+                // 还没到上限，继续抛出异常触发下一次重试
+                throw new RocketmqException(
+                        String.format("消息处理失败, submissionId: %s, 准备第 %d 次重试...",
+                                submissionId, retryCount + 1), e);
             }
         }
     }

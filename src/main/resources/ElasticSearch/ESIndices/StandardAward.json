@@ -19,8 +19,31 @@
           }
         }
       },
+      "category": {
+        "type":"keyword"
+      },
+      "level": {
+        "type": "keyword"
+      },
+      "score": {
+        "type": "double"
+      },
       "is_active": {
         "type": "boolean"
+      },
+      "created_by": {
+        "type": "keyword"
+      },
+      "updated_by": {
+        "type": "keyword"
+      },
+      "created_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss Z||strict_date_optional_time||epoch_millis"
+      },
+      "updated_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss Z||strict_date_optional_time||epoch_millis"
       },
       "name_vector": {
         "type": "dense_vector",

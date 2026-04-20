@@ -21,8 +21,8 @@ public class ModelConst {
         private DashScopeModel() {}
 
         public static final String textEmbeddingModel = "text-embedding-v4";
-        public static final String qwen3VLFlash = "qwen3-vl-flash";
-        public static final String qwenFlash = "qwen-flash";
+        public static final String qwen3VLFlash = "qwen3.5-flash";
+        public static final String qwenFlash = "qwen3.5-flash";
         public static final String qwen3Rerank = "qwen3-vl-rerank";
     }
 

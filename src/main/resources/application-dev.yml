@@ -34,7 +34,7 @@ spring:
 logging:
   level:
     dev:
-      langchain4j=DEBUG:
+      langchain4j= DEBUG:
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml

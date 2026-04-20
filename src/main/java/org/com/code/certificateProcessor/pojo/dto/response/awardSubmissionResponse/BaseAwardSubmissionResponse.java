@@ -3,7 +3,7 @@ package org.com.code.certificateProcessor.pojo.dto.response.awardSubmissionRespo
 import lombok.*;
 import org.com.code.certificateProcessor.pojo.enums.AwardSubmissionStatus;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Map;
 
 @Getter
@@ -22,6 +22,6 @@ public class BaseAwardSubmissionResponse {
     protected String reason;
     protected String duplicateCheckResult;
     protected String reviewedBy;
-    protected LocalDate submittedAt;
-    protected LocalDate completedAt;
+    protected Instant submittedAt;
+    protected Instant completedAt;
 }

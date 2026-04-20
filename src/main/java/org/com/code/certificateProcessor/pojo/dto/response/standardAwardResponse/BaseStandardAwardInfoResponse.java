@@ -2,7 +2,7 @@ package org.com.code.certificateProcessor.pojo.dto.response.standardAwardRespons
 
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -17,6 +17,6 @@ public class BaseStandardAwardInfoResponse {
     protected Double score;
     protected String createdBy;
     protected String updatedBy;
-    protected LocalDate createdAt;
-    protected LocalDate updatedAt;
+    protected Instant createdAt;
+    protected Instant updatedAt;
 }

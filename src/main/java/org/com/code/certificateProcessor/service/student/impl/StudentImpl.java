@@ -24,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,8 +48,12 @@ public class StudentImpl extends BaseCursorPageService<Student> implements Stude
     @Transactional
     public Student addStudent(Student student) {
         try {
+            Instant currentTime = Instant.now();
             student.setPassword(bCryptPasswordEncoder.encode(student.getPassword()));
             student.setAuth(Auth.STUDENT.getName());
+            student.setCreatedAt(currentTime);
+            student.setUpdatedAt(Instant.now());
+
             int result = studentMapper.addStudent(student);
             if (result == 0) {
                 throw new StudentTableException("添加学生失败，未插入任何记录");
@@ -128,6 +133,8 @@ public class StudentImpl extends BaseCursorPageService<Student> implements Stude
     public void updateStudentInfo(Student student){
         try {
             student.setStudentId(SecurityContextHolder.getContext().getAuthentication().getName());
+            student.setUpdatedAt(Instant.now());
+
             if(student.getPassword() != null && !student.getPassword().isEmpty())
                 student.setPassword(bCryptPasswordEncoder.encode(student.getPassword()));
             studentMapper.updateStudentInfo(student);

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -143,6 +144,7 @@ public class FileManageService {
             String imageTemporaryUrl = ossService.generateTemporaryCompressedImageUrl(imageObjectKey,180);
 
             ULID ulid = new ULID();
+            Instant currentTime = Instant.now();
             String submissionId = ulid.nextULID();
             uploadInfo.put(FileUploadMapKey.submissionId, submissionId);
             uploadInfo.put(FileUploadMapKey.imageTemporaryUrl, imageTemporaryUrl);
@@ -152,6 +154,7 @@ public class FileManageService {
                             .studentId((String) uploadInfo.get(FileUploadMapKey.studentId))
                             .imageObjectKey(imageObjectKey)
                             .status(AwardSubmissionStatus.AI_PROCESSING)
+                            .submittedAt(Instant.now())
                             .build();
 
             /**

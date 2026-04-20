@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-// 注意泛型变成了 List<Map<String, Object>>
+// 泛型变成了 List<Map<String, Object>>
 public class JsonListTypeHandler extends BaseTypeHandler<List<Map<String, Object>>> {
 
     private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
@@ -42,8 +42,6 @@ public class JsonListTypeHandler extends BaseTypeHandler<List<Map<String, Object
             throw new RuntimeException(e);
         }
     }
-
-    // ... (getNullableResult(rs, i) 和 getNullableResult(cs, i) 也建议实现)
 
     @Override
     public List<Map<String, Object>> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {

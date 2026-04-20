@@ -13,4 +13,5 @@ public interface FileUploadMapKey {
     String completedPartETags = "completedPartETags";
     String status = "status";
     String imageTemporaryUrl = "imageTemporaryUrl";
+    String submittedAt = "submittedAt";
 }

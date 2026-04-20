@@ -3,15 +3,21 @@ package org.com.code.certificateProcessor.ElasticSearch.config;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransportConfig;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.annotation.PreDestroy;
 import org.com.code.certificateProcessor.ElasticSearch.constant.ESConst;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,14 +51,20 @@ public class ElasticConfig {
     // Elasticsearch 客户端实例
     private ElasticsearchClient elasticsearchClient;
 
+    @Autowired
+    @Qualifier(value = "JavaTimeModule")
+    private ObjectMapper objectMapper;
 
     @Bean("node1")
     public ElasticsearchClient createRestClient() throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 
+
+        JacksonJsonpMapper jsonpMapper = new JacksonJsonpMapper(objectMapper);
         // 创建 REST 客户端，连接到配置的主机地址
         elasticsearchClient = ElasticsearchClient.of(b -> b
                 .host(hostAddress)
                 .apiKey(apiKey)
+                .jsonMapper(jsonpMapper)
         );
         return elasticsearchClient;
     }

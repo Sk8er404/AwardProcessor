@@ -2,6 +2,7 @@ package org.com.code.certificateProcessor.pojo.entity;
 
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Builder
@@ -18,6 +19,6 @@ public class Admin {
   private String username;
   private String fullName;
   private String auth;
-  private LocalDate createdAt;
-  private LocalDate updatedAt;
+  private Instant createdAt;
+  private Instant updatedAt;
 }

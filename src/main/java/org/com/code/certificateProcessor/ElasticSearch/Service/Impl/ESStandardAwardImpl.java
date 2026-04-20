@@ -16,9 +16,6 @@ import java.util.List;
 @Component
 public class ESStandardAwardImpl implements ESStandardAwardService {
     @Autowired
-    @Qualifier("node1")
-    private ElasticsearchClient client;
-    @Autowired
     private ElasticUtil elasticUtil;
     @Autowired
     private EmbeddingService embeddingService;

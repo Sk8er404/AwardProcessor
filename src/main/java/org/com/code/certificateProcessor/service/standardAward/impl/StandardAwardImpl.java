@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -84,10 +85,14 @@ public class StandardAwardImpl extends BaseCursorPageService<StandardAward> impl
 
             String createdBy = SecurityContextHolder.getContext().getAuthentication().getName();
             ULID ulid = new ULID();
+            Instant currentTime = Instant.now();
+
             for (StandardAward standardAward : standardAwardList) {
                 standardAward.setStandardAwardId(ulid.nextULID());
                 standardAward.setCreatedBy(createdBy);
                 standardAward.setUpdatedBy(createdBy);
+                standardAward.setCreatedAt(currentTime);
+                standardAward.setUpdatedAt(currentTime);
             }
 
             final int batchSize = 1000;
@@ -110,9 +115,11 @@ public class StandardAwardImpl extends BaseCursorPageService<StandardAward> impl
     @Transactional
     public void updateBatchStandardAward(List<StandardAward> standardAwardList) {
         try {
+            Instant currentTime = Instant.now();
             String updatedBy = SecurityContextHolder.getContext().getAuthentication().getName();
             for (StandardAward standardAward : standardAwardList) {
                 standardAward.setUpdatedBy(updatedBy);
+                standardAward.setUpdatedAt(currentTime);
             }
 
             final int batchSize = 1000;
