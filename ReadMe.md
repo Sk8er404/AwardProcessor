@@ -1,4 +1,4 @@
-# AwardProcessor - 深度技术架构与实现原理
+# AwardProcessor - 技术架构与实现原理
 
 ## 项目概览
 
