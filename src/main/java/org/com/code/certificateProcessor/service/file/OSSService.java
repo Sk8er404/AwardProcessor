@@ -133,23 +133,23 @@ public class OSSService {
     }
     /**
      * 为什么不能简单地动态压缩？
-     * 因为“动态压缩”这个动作本身，就需要你先知道“图片信息”（比如宽度）。
+     * 因为“动态压缩”这个动作本身，就需要知道“图片信息”（比如宽度）。
      *
-     * 为了实现你想要的“动态压缩”，正确但极其缓慢的流程是这样的：
+     * 为了实现“动态压缩”，正确但极其缓慢的流程是这样的：
      *
      * 生成第1个URL（用于获取信息）：
      *
      * 在 OSSService 中，为 objectKey 生成一个带 x-oss-process=image/info 签名的URL，设置一个很短的过期时间（比如10秒）。
      *
-     * 发起网络请求（你的服务器自己请求OSS）：
+     * 发起网络请求（服务器自己请求OSS）：
      *
-     * 你的服务器（OSSService）立刻使用 RestTemplate（就像 OssImageUtil.getImageInfo 里那样）去请求这个第1个URL。
+     * 服务器（OSSService）立刻使用 RestTemplate（就像 OssImageUtil.getImageInfo 里那样）去请求这个第1个URL。
      *
      * OSS返回一个包含图片宽高的JSON。
      *
      * 决定压缩样式：
      *
-     * 你的代码解析这个JSON，发现宽度是4000px，于是决定使用 image/resize,w_1024... 作为压缩样式。
+     * 代码解析这个JSON，发现宽度是4000px，于是决定使用 image/resize,w_1024... 作为压缩样式。
      *
      * 生成第2个URL（最终给AI的URL）：
      *
@@ -161,6 +161,6 @@ public class OSSService {
      *
      * 这个流程的致命问题：
      *
-     * 为了生成一个URL，你额外增加了一次往返OSS的网络请求（在步骤2）。如果你在一个API中要返回10张图片的URL（比如你的 cursorQuerySubmissionByStatus），这个API就会多发起10次HTTP请求，你的接口会变得非常慢。
+     * 为了生成一个URL，额外增加了一次往返OSS的网络请求（在步骤2）。如果在一个API中要返回10张图片的URL（比如 cursorQuerySubmissionByStatus），这个API就会多发起10次HTTP请求，接口会变得非常慢。
      */
 }
