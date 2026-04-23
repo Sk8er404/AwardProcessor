@@ -31,13 +31,6 @@ import java.security.cert.CertificateException;
  * Elasticsearch 配置类
  * 
  * 该类负责配置和初始化 Elasticsearch 客户端，并管理索引的创建
- * 使用 Elasticsearch 提供的新的 Java API Client 替代已废弃的 High Level Client
- * 
- * 主要功能：
- * 1. 创建和配置 Elasticsearch 客户端
- * 2. 管理客户端资源的释放
- * 3. 初始化必要的索引（视频、帖子、用户）
- * 4. 定义索引的映射结构
  */
 @Component
 public class ElasticConfig {
